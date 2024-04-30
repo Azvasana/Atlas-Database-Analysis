@@ -38,12 +38,13 @@ library(writexl)
 data <- read_excel("~/Desktop/Research/NCDB Project/DCI.xlsx")
 
 # Calculate distances between each zip code in the dataset and zip code 21287
-distances <- sapply(data$Zip_Code, function(zip) zip_distance(zipcode_a = zip, zipcode_b = "21287"))
+distances <- sapply(data$Zip_Code, function(zip) zip_distance(zipcode_a = zip, zipcode_b = "21218", units = "miles"))
 calculate_distance <- function(zip) {
-  distance <- zip_distance(zipcode_a = zip, zipcode_b = "21287")
+  distance <- zip_distance(zipcode_a = zip, zipcode_b = "21218", units = "miles")
   return(distance$distance)
 }
 
+# Johns Hopkins Hospital Zipcode does not exist, had to change to homewood campus zipcode for closest fit 
 # Add a new column for distance traveled
 data$Distance_to_21287 <- sapply(data$Zip_Code, calculate_distance)
 
@@ -51,5 +52,5 @@ data$Distance_to_21287 <- sapply(data$Zip_Code, calculate_distance)
 write_xlsx(data, "DCI with Distances")
 
 # Plot histogram of distances
-hist(data$Distance_to_21287, breaks = 10, col = "skyblue", border = "black",
+distances <- hist(data$Distance_to_21287, breaks = 10, col = "skyblue", border = "black",
      main = "Distance Travelled to Zip Code 21287", xlab = "Distance (miles)", ylab = "Frequency")
