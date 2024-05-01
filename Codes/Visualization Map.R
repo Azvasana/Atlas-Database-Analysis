@@ -1,43 +1,32 @@
-# Convert zipcodes into geographical coordinates
-# Install and load required libraries
-install.packages("zipcodeR")
-library(zipcodeR)
-library(readxl)
+# Install and load necessary packages
+install.packages(c("ggplot2", "ggmap", "dplyr", "readxl"))
+library(ggplot2)
+library(ggmap)
 library(dplyr)
-library(writexl)
+library(readxl)
 
-# Function to get coordinates for zip codes and store in separate columns
-geocode_zipcodes <- function(zip_data, zip_column_name) {
-  # Initialize vectors to store latitude and longitude
-  latitude <- numeric(nrow(zip_data))
-  longitude <- numeric(nrow(zip_data))
-  
-  # Iterate through each row of the data frame
-  latitude <- for (i in seq_along(zip_data[[zip_column_name]])) {
-    geocode_zip(i)$lat
-  }
-  longitude <- for (i in seq_along(zip_data[[zip_column_name]])) {
-    geocode_zip(i)$lng
-  }
-  
-  # Add latitude and longitude columns to the data frame
-  zip_data <- cbind(zip_data, latitude, longitude)
-  return(zip_data)
-}
+# Replace with the coordinates of your hospital
+hospital_location <- c(-76.592941, 39.296318)
 
-# Read Excel file containing zip code data
-input_file <- "~/Desktop/Research/NCDB Project/DCI.xlsx"
-zip_data <- readxl::read_excel(input_file, col_types = "text")
+# Read zip code data from Excel file
+zip_data <- read_excel("~/Desktop/Research/NCDB Project/DCI.xlsx")
 
-# Specify the name of the column containing zip codes
-zip_column_name <- "Zip_Code"
+# Registering API Key
+register_google(key = "AIzaSyA21KuZCAwK05gb5g5p3jP5tQvSJGjjeSA")
 
-# Process zip codes and store latitude and longitude in separate columns
-zip_data_with_coords <- geocode_zipcodes(zip_data, zip_column_name)
+# Issue arises here onwards
+# Geocode the zip codes to get their coordinates
+zip_data <- mutate(zip_data, 
+                   geocode_result = geocode(paste0(zip_data$Zip_Code, ", USA")),
+                   latitude = sapply(geocode_result, function(x) x$lat),
+                   longitude = sapply(geocode_result, function(x) x$lon))
 
-# Save data with coordinates to another Excel file
-output_file <- "~/Desktop/Research/NCDB Project/Zip Code Data.xlsx"
-write_xlsx(zip_data_with_coords, output_file)
+# Calculate distances between zip codes and hospital
+zip_data <- mutate(zip_data,
+                   distance_to_hospital = geosphere::distVincentySphere(cbind(zip_data$longitude, zip_data$latitude), hospital_location))
 
-# Print message
-print("Coordinates saved to output_excel_file.xlsx")
+# Plot map with distances
+ggmap(get_map(location = hospital_location, zoom = 6)) +
+  geom_point(data = zip_data, aes(x = longitude, y = latitude, color = distance_to_hospital), size = 3) +
+  scale_color_gradient(name = "Distance to Hospital", low = "green", high = "red", guide = "legend") +
+  labs(title = "Distances to Hospital from Zip Codes")
