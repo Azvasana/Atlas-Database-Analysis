@@ -35,10 +35,9 @@ library(ggplot2)
 library(writexl)
 
 # Load data from Excel file
-data <- read_excel("~/Desktop/Research/NCDB Project/DCI.xlsx")
+data <- read_excel("~/Desktop/Research/Atlas Database Analysis/Datasets/Merged DCI.xlsx")
 
 # Calculate distances between each zip code in the dataset and zip code 21287
-distances <- sapply(data$`Zip Code`, function(zip) zip_distance(zipcode_a = zip, zipcode_b = "21218", units = "miles"))
 calculate_distance <- function(zip) {
   distance <- zip_distance(zipcode_a = zip, zipcode_b = "21218", units = "miles")
   return(distance$distance)
@@ -49,7 +48,7 @@ calculate_distance <- function(zip) {
 data$Distance_to_21287 <- sapply(data$`Zip Code`, calculate_distance)
 
 # Write the updated data back to the Excel file
-write_xlsx(data, "DCI with Distances")
+write_xlsx(data, "Merged DCI with Distances.xlsx")
 
 # Plot histogram of distances
 histogram <- hist(data$Distance_to_21287, breaks = 10, col = "skyblue", border = "black",
@@ -58,3 +57,23 @@ histogram <- hist(data$Distance_to_21287, breaks = 10, col = "skyblue", border =
 create_histogram("~/Desktop/Research/NCDB Project/DCI.xlsx", "Zip_Code", "Distances.png")
 
 ggsave("Distances to Hospital.png", plot = histogram)
+
+
+# Calculate distances between each zip code in the dataset and zip code 21287 within the state of Maryland
+# Load required packages
+library(readxl)
+
+# Read the Excel file
+data <- read_excel("~/Desktop/Research/Atlas Database Analysis/Datasets/Merged DCI with Distances.xlsx")
+
+# Filter data by state
+maryland_distances <- subset(data, hrrstate == "MD")$Distance_to_21287
+
+# Create a PNG file
+png("maryland_distance_histogram.png", width = 800, height = 600)
+
+# Create a histogram of distances traveled within Maryland
+hist(maryland_distances, breaks = "Sturges", main = "Distance Travelled Between Zipcodes in Maryland", xlab = "Distance (miles)")
+
+# Close the PNG device
+dev.off()

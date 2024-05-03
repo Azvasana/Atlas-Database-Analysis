@@ -34,3 +34,43 @@ create_pie_chart <- function(file_path, column_name, output_file_name) {
 
 ## Replace "example.xlsx" with the path to your Excel file, replace "Column1" with the name of the column containing the data for the pie chart, and replace "pie_chart.png" with the desired output file name
 create_pie_chart("example.xlsx", "Column1", "pie_chart.png")
+
+# People within Baltimore vs outside of Baltimore within Maryland 
+# Load required packages
+library(readxl)
+
+# Read the Excel file
+data <- read_excel("Datasets/Merged DCI with Distances.xlsx")
+
+# Filter data by state (assuming 'State' is the column name)
+maryland_data <- subset(data, hrrstate == "MD")
+
+# Count the number of people from Baltimore and outside of Baltimore
+baltimore_count <- sum(maryland_data$hrrcity == "Baltimore")
+outside_baltimore_count <- sum(maryland_data$hrrcity != "Baltimore")
+
+# Create a pie chart
+pie_data <- c(Baltimore = baltimore_count, "Outside Baltimore" = outside_baltimore_count)
+pie_labels <- paste(names(pie_data), "\n", round(pie_data / sum(pie_data) * 100, 1), "%", sep = "")
+pie(pie_data, labels = pie_labels, main = "Distribution of People in Maryland", col = c("blue", "green"))
+
+# Add a legend
+legend("topright", legend = names(pie_data), fill = c("blue", "green"))
+
+# Save the pie chart as a PNG file
+png("Maryland Baltimore Distribution.png", width = 800, height = 600)
+pie(pie_data, labels = pie_labels, main = "Distribution of People in Maryland", col = c("blue", "green"))
+legend("topright", legend = names(pie_data), fill = c("blue", "green"))
+dev.off()
+
+# People within Maryland
+# Count the number of people from each city within Maryland
+city_counts <- table(maryland_data$hrrcity)
+
+# Create a pie chart
+pie(city_counts, main = "Distribution of People from Each City in Maryland")
+
+# Save the pie chart as a PNG file
+png("Maryland City Distribution.png", width = 800, height = 600)
+pie(city_counts, main = "Distribution of People from Each City in Maryland")
+dev.off()
