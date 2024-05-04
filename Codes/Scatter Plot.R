@@ -22,5 +22,8 @@ create_scatterplot <- function(file_path, x_column, y_column, output_file_name) 
   print("Scatter plot created successfully!")
 }
 
+
 # Replace "example.xlsx" with the path to your Excel file, replace "X_Column" with the name of the column containing the x data, replace "Y_Column" with the name of the column containing the y data, replace "scatter_plot.png" with the desired output file name
 create_scatterplot("example.xlsx", "X_Column", "Y_Column", "scatter_plot.png")
+
+create_scatterplot("Datasets/Merged DCI with Distances.xlsx", "Distance_to_21287", "Crude_Rate", "Access to Healthcare as Distance.png")

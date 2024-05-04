@@ -1,6 +1,7 @@
 # States analysis 
 # Load required library
 library(ggplot2)
+library(readxl)
 
 # Read the CSV file
 data <- read.xlsx("Dartmouth Atlas/Dartmouth Atlas.xlsx")

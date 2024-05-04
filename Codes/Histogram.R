@@ -26,6 +26,8 @@ create_histogram <- function(file_path, column_name, output_file_name) {
 
 create_histogram("example.xlsx", "Column1", "histogram.png")
 
+create_histogram("Datasets/Merged DCI with Distances.xlsx", "Distance_to_21287", "Distance Traveled to Hospital.png")
+
 ## HISTOGRAM OF DISTANCE TRAVELED 
 # Load required libraries
 library(readxl)
@@ -64,7 +66,7 @@ ggsave("Distances to Hospital.png", plot = histogram)
 library(readxl)
 
 # Read the Excel file
-data <- read_excel("~/Desktop/Research/Atlas Database Analysis/Datasets/Merged DCI with Distances.xlsx")
+data <- read_excel("Datasets/Merged DCI with Distances.xlsx")
 
 # Filter data by state
 maryland_distances <- subset(data, hrrstate == "MD")$Distance_to_21287
@@ -74,6 +76,19 @@ png("maryland_distance_histogram.png", width = 800, height = 600)
 
 # Create a histogram of distances traveled within Maryland
 hist(maryland_distances, breaks = "Sturges", main = "Distance Travelled Between Zipcodes in Maryland", xlab = "Distance (miles)")
+
+# Close the PNG device
+dev.off()
+
+# Calculating death and distribution of age 
+# Filter data by death
+subsetdata <- subset(data, DeathWithin90DaysofSurgery == 1 | DeathWithin30DaysofSurgery == 1)$Age
+
+# Create a PNG file
+png("Death Age Distribution.png", width = 800, height = 600)
+
+# Create a histogram of distances traveled within Maryland
+hist(subsetdata, breaks = "Sturges", main = "Distribution of Age Among Patients that have Died", xlab = "Age (years)")
 
 # Close the PNG device
 dev.off()

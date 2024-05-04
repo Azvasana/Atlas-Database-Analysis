@@ -27,12 +27,14 @@ create_bar_graph <- function(file_path, column_name, output_file_name) {
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
   # Save the bar graph as a PNG file
-  ggsave(output_file_name, plot = bar_graph, width = 10, height = 6)
+  ggsave(output_file_name, plot = bar_graph, width = 15, height = 10)
   
   print("Bar graph created successfully!")
 }
 
 create_bar_graph("example.xlsx", "Column1", "bar_graph.png") 
+
+create_bar_graph("Datasets/Merged DCI with Distances.xlsx", "Race", "Race Distribution.png")
 
 ## BAR GRAPH OF ZIPCODES AND STATES 
 # Load required libraries
