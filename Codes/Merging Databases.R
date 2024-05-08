@@ -29,3 +29,24 @@ data$latitude <- sapply(data$`Zip Code`, function(zip) geocode_zip(zip)$lat)
 data$longitude <- sapply(data$`Zip Code`, function(zip) geocode_zip(zip)$lng)
 
 write_xlsx(data, "Datasets/Merged DCI with Distances.xlsx")
+
+# Load the library
+library(zipcodeR)
+library(ggmap)
+
+# Assuming your latitude column is named 'latitude' and longitude column is named 'longitude'
+# Assuming your data frame is named 'data'
+
+data <- read_xlsx("Datasets/Modified Annual Checkup Data.xlsx")
+
+register_google(key = "AIzaSyDb85qnWZF2caFWbUshB2MtwxZdlm8dWKk")
+
+# Create a function to get ZIP code from latitude and longitude
+get_zip_from_lat_long <- function(lat, long) {
+  result <- revgeocode(c(long, lat), output="address")
+  zip <- substr(result$postal_code, 1, 5) # Extract first 5 characters as ZIP code
+  return(zip)
+}
+
+# Apply the function to your data frame and create a new column for ZIP code
+data$zipcode <- mapply(get_zip_from_lat_long, data$Latitude, data$Longitude)
