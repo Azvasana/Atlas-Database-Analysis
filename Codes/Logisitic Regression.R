@@ -1,16 +1,17 @@
 # Load required library
 library(readxl)
-
+library(ROCR)
 # Load data from Excel file
-data <- read_excel("~/Desktop/Research/NCDB Project/DCI.xlsx")
+data <- read_excel("Datasets/Merged DCI with Distances.xlsx")
 
 # Convert character variables to factors (assuming they are categorical)
 character_vars <- sapply(data, is.character)
 data[, character_vars] <- lapply(data[, character_vars], as.factor)
-data[, "DeathWithin30DaysofSurgery"] <- lapply(data[, "DeathWithin30DaysofSurgery"], as.factor)
+data[, c("employment", "establishment")] <- lapply(data[, c("employment", "establishment")], as.numeric)
+data[, c("DeathWithin90DaysofSurgery", "insurance", "mfi")] <- lapply(data[, c("DeathWithin90DaysofSurgery", "insurance", "mfi")], as.factor)
 
 # Build logistic regression model
-model <- glm(DeathWithin30DaysofSurgery ~ Age + Gender + Race, family = "binomial", data)
+model <- glm(DeathWithin30DaysofSurgery ~ Age + Gender + Race + income + insurance + mfi, family = "binomial", data)
 
 # Print summary of the model
 summary(model)
@@ -19,16 +20,16 @@ model$coefficients
 # Testing reliability of model
 predicted <- predict(model,type = "response")
 prediction<-as.data.frame(predicted)
-result<-cbind(data$DeathWithin30DaysofSurgery, prediction)
+result<-cbind(data$DeathWithin90DaysofSurgery, prediction)
 colnames(result)<- c("Actul Outcome", "Probability")
 
 #Generate ROCR curves to know best cut off values
-ROCRpred <-prediction(predicted, data$DeathWithin30DaysofSurgery)
+ROCRpred <-prediction(predicted, data$DeathWithin90DaysofSurgery)
 ROCRref<-performance(ROCRpred, "tpr", "fpr")
 
 #plot ROCR curve
-plot(ROCRref, colorize=TRUE, print.cutoffs.at=seq(0.1, by=0.1))
+ROCR <- plot(ROCRref, colorize=TRUE, print.cutoffs.at=seq(0.1, by=0.1))
 
 # Have to conduct ROC curve analysis first 
-result$ourprediction<-ifelse(result$probability>0.1,1,0)
-table(result$actuloutcome)
+result$ourprediction<-ifelse(result$Probability>0.1,1,0)
+table(result$`Actul Outcome`)
