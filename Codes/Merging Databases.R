@@ -18,35 +18,59 @@ newdf <- df %>%
 # Write the modified data back to the Excel file
 write_xlsx(newdf, "Modified Annual Checkup Data.xlsx")
 
-data <- read_xlsx("Datasets/Merged DCI with Distances.xlsx")
-
-# Load required library
+## Merging Annual Checkup and DCI 
+# Install and load necessary packages
+install.packages("zipcodeR")
+install.packages("readxl")
 library(zipcodeR)
+library(readxl)
+library(writexl)
 
-data <- read_xlsx("Datasets/Merged DCI with Distances.xlsx")
+# Read the Excel file into R
+data <- read_excel("Datasets/Merged DCI with Distances.xlsx")
 
-data$latitude <- sapply(data$`Zip Code`, function(zip) geocode_zip(zip)$lat)
-data$longitude <- sapply(data$`Zip Code`, function(zip) geocode_zip(zip)$lng)
+# Assume the column with zip codes is named "zipcode"
+zipcodes <- data$`Zip Code`
 
+# Apply reverse_zipcode function to get the counties
+counties <- sapply(zipcodes, function(z) {
+  result <- reverse_zipcode(zip = z)
+  if (!is.null(result$county)) {
+    return(result$county)
+  } else {
+    return(NA) # If no county found for a zip code
+  }
+})
+
+# Add the county information as a new column
+data$county <- counties
+
+# Write the modified dataset back to Excel
 write_xlsx(data, "Datasets/Merged DCI with Distances.xlsx")
 
-# Load the library
-library(zipcodeR)
-library(ggmap)
+# Install and load necessary packages
+install.packages("readxl")
+library(readxl)
+library(dplyr)
+library(writexl)
 
-# Assuming your latitude column is named 'latitude' and longitude column is named 'longitude'
-# Assuming your data frame is named 'data'
+# Read the Excel files
+file1 <- read_excel("Datasets/Merged DCI with Distances.xlsx")
+file2 <- read_excel("Datasets/Modified Annual Checkup Data.xlsx")
 
-data <- read_xlsx("Datasets/Modified Annual Checkup Data.xlsx")
+file1$County <- sub("County", "", file1$County)
+file1$County <- gsub(" $", "", file1$County)
 
-register_google(key = "AIzaSyDb85qnWZF2caFWbUshB2MtwxZdlm8dWKk")
+aggregated_data <- file2 %>%
+  group_by(County) %>%
+  summarise(Data_Value = mean(Data_Value, na.rm = TRUE))  # You can change mean to any other aggregation function
 
-# Create a function to get ZIP code from latitude and longitude
-get_zip_from_lat_long <- function(lat, long) {
-  result <- revgeocode(c(long, lat), output="address")
-  zip <- substr(result$postal_code, 1, 5) # Extract first 5 characters as ZIP code
-  return(zip)
-}
+# Perform left join with aggregated data
+merged_data <- file1 %>%
+  left_join(aggregated_data, by = "County")
 
-# Apply the function to your data frame and create a new column for ZIP code
-data$zipcode <- mapply(get_zip_from_lat_long, data$Latitude, data$Longitude)
+# View the merged dataset
+print(merged_data)
+
+# Write the merged dataset to a new Excel file if needed
+write_xlsx(merged_data, "Datasets/Final DCI.xlsx")
