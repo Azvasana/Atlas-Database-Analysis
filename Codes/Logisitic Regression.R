@@ -2,7 +2,10 @@
 library(readxl)
 library(ROCR)
 # Load data from Excel file
-data <- read_excel("Datasets/Merged DCI with Distances.xlsx")
+data <- read_excel("Datasets/Final DCI.xlsx")
+
+# Remove rows with missing values in the Data_Value column
+data <- data[complete.cases(data$Data_Value), ]
 
 # Convert character variables to factors (assuming they are categorical)
 character_vars <- sapply(data, is.character)
@@ -11,7 +14,7 @@ data[, c("employment", "establishment")] <- lapply(data[, c("employment", "estab
 data[, c("DeathWithin90DaysofSurgery", "insurance", "mfi")] <- lapply(data[, c("DeathWithin90DaysofSurgery", "insurance", "mfi")], as.factor)
 
 # Build logistic regression model
-model <- glm(DeathWithin30DaysofSurgery ~ Age + Gender + Race + income + insurance + mfi, family = "binomial", data)
+model <- glm(DeathWithin90DaysofSurgery ~ Age + Gender + Race + income + insurance + mfi + Data_Value, family = "binomial", data)
 
 # Print summary of the model
 summary(model)

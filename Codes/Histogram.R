@@ -92,3 +92,16 @@ hist(subsetdata, breaks = "Sturges", main = "Distribution of Age Among Patients 
 
 # Close the PNG device
 dev.off()
+
+# Calculating death and annual checkup
+# Filter data by death
+subsetdata <- subset(data, DeathWithin90DaysofSurgery == 1 | DeathWithin30DaysofSurgery == 1)$Data_Value
+
+# Create a PNG file
+png("Death Age Distribution.png", width = 800, height = 600)
+
+# Create a histogram of distances traveled within Maryland
+hist(subsetdata, breaks = "Sturges", main = "Distribution of Annual Checkup Among Patients that have Died", xlab = "Annual Checkup Percentage")
+
+# Close the PNG device
+dev.off()

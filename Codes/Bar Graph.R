@@ -60,3 +60,23 @@ p <- ggplot(state_counts, aes(x = state, y = n)) +
 
 # Saving as a PNG
 ggsave("zipcode_distribution.png", plot = p, width = 8, height = 6, units = "in", dpi = 300)
+
+
+## BAR GRAPH OF RACE AND ANNUAL CHECKUP 
+install.packages("ggplot2")
+install.packages("dplyr")
+library(ggplot2)
+library(dplyr)
+library(readxl)
+data <- read_excel("Datasets/Final DCI.xlsx")
+summary_data <- data %>%
+  group_by(Race) %>%
+  summarize(Data_Value = mean(Data_Value))
+ggplot(summary_data, aes(x = Race, y = Data_Value)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "Mean Annual Checkup by Demographics",
+       x = "Race",
+       y = "Mean Annual Checkup Rate") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
