@@ -12,9 +12,11 @@ character_vars <- sapply(data, is.character)
 data[, character_vars] <- lapply(data[, character_vars], as.factor)
 data[, c("employment", "establishment")] <- lapply(data[, c("employment", "establishment")], as.numeric)
 data[, c("DeathWithin90DaysofSurgery", "insurance", "mfi")] <- lapply(data[, c("DeathWithin90DaysofSurgery", "insurance", "mfi")], as.factor)
+data[, c("Readmittedwithin90days")] <- lapply(data[, c("Readmittedwithin90days")], as.factor)
 
 # Build logistic regression model
 model <- glm(DeathWithin90DaysofSurgery ~ Age + Gender + Race + income + insurance + mfi + Data_Value, family = "binomial", data)
+model <- glm(Readmittedwithin90days ~ Age + Gender + Race + income + insurance + mfi + Data_Value, family = "binomial", data)
 
 # Print summary of the model
 summary(model)
@@ -23,11 +25,11 @@ model$coefficients
 # Testing reliability of model
 predicted <- predict(model,type = "response")
 prediction<-as.data.frame(predicted)
-result<-cbind(data$DeathWithin90DaysofSurgery, prediction)
+result<-cbind(data$Readmittedwithin90days, prediction)
 colnames(result)<- c("Actul Outcome", "Probability")
 
 #Generate ROCR curves to know best cut off values
-ROCRpred <-prediction(predicted, data$DeathWithin90DaysofSurgery)
+ROCRpred <-prediction(predicted, data$Readmittedwithin90days)
 ROCRref<-performance(ROCRpred, "tpr", "fpr")
 
 #plot ROCR curve
