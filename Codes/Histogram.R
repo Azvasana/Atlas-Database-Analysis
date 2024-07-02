@@ -105,3 +105,23 @@ hist(subsetdata, breaks = "Sturges", main = "Distribution of Annual Checkup Amon
 
 # Close the PNG device
 dev.off()
+
+
+# Load necessary libraries
+library(readxl)
+library(ggplot2)
+
+# Load the data from your Excel file
+df <- read_excel("Datasets/Final DCI.xlsx")
+
+# Filter the data to include only patients who are alive within 90 days of surgery
+df_alive <- df[df$DeathWithin90DaysofSurgery == 0, ]
+
+ggplot(df_alive, aes(x = Data_Value)) +
+  geom_histogram(binwidth = 5, fill = "coral", alpha = 0.5) +
+  labs(
+    title = "Distribution of Annual Checkup Percentage for Patients Alive within 90 Days of Surgery",
+    x = "Annual Checkup Percentage",
+    y = "Frequency"
+  ) +
+  theme_minimal()
